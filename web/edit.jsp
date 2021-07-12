@@ -53,11 +53,12 @@
             <input type="submit" value="Edit" name="btAction"/>
             <input type="hidden" name="lastSearchValue" value="${lastSearchValue}" />
             <input type="hidden" name="role" value="${role}" />
+            <c:url var="searchLink" value="searchLastName">
+                <c:param name="txtSearchValue" value="${lastSearchValue}"/>
+            </c:url>
+            <a href="${searchLink}">Back to Search</a>
         </form>
-        <c:url var="searchLink" value="searchLastName">
-            <c:param name="txtSearchValue" value="${lastSearchValue}"/>
-        </c:url>
-        <a href="${searchLink}">Back to Search</a>
+
 
     </body>
 </html>

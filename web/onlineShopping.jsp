@@ -73,8 +73,9 @@
         </table>
         <form action="viewCart">
             <input type="submit" value="View Cart"/>
+            <a href="loginPage">Click here to Login Page</a>
         </form>
-        <a href="loginPage">Click here to Login Page</a>
+
     </c:if>
 </body>
 </html>

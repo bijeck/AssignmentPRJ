@@ -47,12 +47,6 @@ public class CheckOutServlet extends HttpServlet {
         String customerAddress = request.getParameter("txtCustomerAddress");
 
         try {
-            if (customerName.equals("")) {
-                customerName = "Customer";
-            }
-            if (customerAddress.equals("")) {
-                customerAddress = "Viet Nam";
-            }
             //1. go to cart place
             HttpSession session = request.getSession(false);
             if (session != null) {

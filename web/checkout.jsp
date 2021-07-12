@@ -19,8 +19,8 @@
             <c:set var="items" value="${cart.items}"/>
             <c:if test="${not empty items}">
                 <form action="checkout">
-                    Name:<input type="text" name="txtCustomerName" value="" /><br/>
-                    Address:<input type="text" name="txtCustomerAddress" value="" />
+                    Name:<input type="text" name="txtCustomerName" value="Customer" /><br/>
+                    Address:<input type="text" name="txtCustomerAddress" value="Viet Nam" />
                     <table border="1">
                         <thead>
                             <tr>
@@ -61,8 +61,8 @@
                         </tbody>
                     </table>
                     <input type="submit" value="Check out" name="btAction"/>
+                    <a href="shoppingPage">Add More</a>
                 </form>
-                <a href="shoppingPage">Add More</a>
             </c:if>
         </c:if>
 

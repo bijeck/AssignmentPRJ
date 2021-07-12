@@ -58,7 +58,7 @@ public class EditAccountServlet extends HttpServlet {
                 String password = request.getParameter("txtPassword");
                 String lastname = request.getParameter("txtLastname");
                 String checkAdmin = request.getParameter("chkAdmin");
-                if (checkAdmin != null) {
+                if (!checkAdmin.isEmpty()) {
                     role = true;
                 }
                 //1. check all user Err
