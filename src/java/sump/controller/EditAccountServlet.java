@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import sump.registration.RegistrationDAO;
+import sump.registration.RegistrationDTO;
 import sump.registration.RegistrationUpdateError;
 
 /**
@@ -28,7 +29,7 @@ public class EditAccountServlet extends HttpServlet {
 
     private final String EDIT_PAGE = "editPage";
     private final String SEARCH = "searchLastName";
-        private final String ERROR_PAGE = "errors";
+    private final String ERROR_PAGE = "errors";
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -43,47 +44,58 @@ public class EditAccountServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         String username = request.getParameter("txtUsername");
-        String password = request.getParameter("txtPassword");
-        String lastname = request.getParameter("txtLastname");
-        String checkAdmin = request.getParameter("chkAdmin");
         String searchValue = request.getParameter("lastSearchValue");
+        String btn = request.getParameter("btAction");
         boolean role = false;
         String url = ERROR_PAGE;
         RegistrationUpdateError errors = new RegistrationUpdateError();
         boolean foundErr = false;
         try {
-            if (checkAdmin != null) {
-                role = true;
-            }
+
             ServletContext context = request.getServletContext();
             Map<String, String> roadmap = (Map<String, String>) context.getAttribute("ROADMAP");
-
-            //1. check all user Err
-            if (password.trim().length() < 6 || password.trim().length() > 30) {
-                foundErr = true;
-                errors.setPasswordLengthErr("Password is required from 6 to 30 chars");
-            }
-            if (lastname.trim().length() < 2 || lastname.trim().length() > 50) {
-                foundErr = true;
-                errors.setFullnameLengthErr("Fullname is required from 6 to 50 chars");
-            }
-            if (foundErr) {
-                if (roadmap != null) {
-                    request.setAttribute("EDIT_ERRORS", errors);
-                    url = roadmap.get(EDIT_PAGE)
-                            + "?role=" + role;
+            if (btn != null) {
+                String password = request.getParameter("txtPassword");
+                String lastname = request.getParameter("txtLastname");
+                String checkAdmin = request.getParameter("chkAdmin");
+                if (checkAdmin != null) {
+                    role = true;
+                }
+                //1. check all user Err
+                if (password.trim().length() < 6 || password.trim().length() > 30) {
+                    foundErr = true;
+                    errors.setPasswordLengthErr("Password is required from 6 to 30 chars");
+                }
+                if (lastname.trim().length() < 2 || lastname.trim().length() > 50) {
+                    foundErr = true;
+                    errors.setFullnameLengthErr("Fullname is required from 6 to 50 chars");
+                }
+                if (foundErr) {
+                    if (roadmap != null) {
+                        request.setAttribute("EDIT_ERRORS", errors);
+                        url = roadmap.get(EDIT_PAGE)
+                                + "?role=" + role;
+                    }
+                } else {
+                    //call DAO
+                    RegistrationDAO dao = new RegistrationDAO();
+                    boolean result = dao.editAccount(username, password, lastname, role);
+                    if (result) {
+                        if (roadmap != null) {
+                            //call search again
+                            url = roadmap.get(SEARCH)
+                                    + "?txtSearchValue=" + searchValue;
+                        }//end if roadmap existed
+                    }//end if update is successfully
                 }
             } else {
-                //call DAO
+                //call DAO and get dto
                 RegistrationDAO dao = new RegistrationDAO();
-                boolean result = dao.editAccount(username, password, lastname, role);
-                if (result) {
-                    if (roadmap != null) {
-                        //call search again
-                        url = roadmap.get(SEARCH)
-                                + "?txtSearchValue=" + searchValue;
-                    }//end if roadmap existed
-                }//end if update is successfully
+                RegistrationDTO dto = dao.getAccount(username);
+                if (dto != null) {
+                    request.setAttribute("DTO", dto);
+                }
+                url = roadmap.get(EDIT_PAGE);
             }
         } catch (SQLException ex) {
             log("EditAccountServlet _ SQL " + ex.getMessage());
@@ -92,6 +104,7 @@ public class EditAccountServlet extends HttpServlet {
         } finally {
             RequestDispatcher rd = request.getRequestDispatcher(url);
             rd.forward(request, response);
+
         }
     }
 

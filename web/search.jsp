@@ -33,9 +33,9 @@
             Search Value <input type="text" name="txtSearchValue" 
                                 value="${param.txtSearchValue}" /><br>
             <input type="submit" value="Search" name="btAction" />
+            <a href="logout">Log Out!</a>
         </form><br/>
-        <a href="logout">Log Out!</a>
-
+        
         <c:set var="searchValue" value="${param.txtSearchValue}"/>
         <c:set var="errors" value="${requestScope.UPDATE_ERRORS}"/>
         <c:if test="${not empty searchValue}">
@@ -102,11 +102,8 @@
                                 </td>
                                 <td>
                                     <c:url var="editLink" 
-                                           value="editPage">
+                                           value="edit">
                                         <c:param name="txtUsername" value="${dto.username}"/>
-                                        <c:param name="txtPassword" value="${dto.password}"/>
-                                        <c:param name="txtLastname" value="${dto.lastname}"/>
-                                        <c:param name="role" value="${dto.role}"/>
                                         <c:param name="lastSearchValue" value="${searchValue}"/>
                                     </c:url>
                                     <a href="${editLink}">Edit</a>

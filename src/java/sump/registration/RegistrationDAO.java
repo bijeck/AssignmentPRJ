@@ -26,7 +26,7 @@ public class RegistrationDAO implements Serializable {
         Connection con = null;
         PreparedStatement stm = null;
         ResultSet rs = null;
-        String lastname="";
+        String lastname = "";
         try {
             //1.connect DB
             con = DBHelpers.makeConnection();
@@ -116,6 +116,52 @@ public class RegistrationDAO implements Serializable {
         }
     }
 
+    public RegistrationDTO getAccount(String user)
+            throws SQLException, NamingException {
+        Connection con = null;
+        PreparedStatement stm = null;
+        ResultSet rs = null;
+        try {
+            //1.connect DB
+            con = DBHelpers.makeConnection();
+            if (con != null) {
+                //2.create sql statement string
+                String sql = "Select username, password, lastname, isAdmin "
+                        + "From Registration "
+                        + "Where username = ?";
+                //3.create statement to set SQL
+                stm = con.prepareStatement(sql);
+                stm.setString(1, user);
+                //4.excute
+                rs = stm.executeQuery();
+                //5.process
+                while (rs.next()) {
+                    //get field coloumn
+                    String username = rs.getString("username");
+                    String password = rs.getString("password");
+                    String lastname = rs.getString("lastname");
+                    boolean role = rs.getBoolean("isAdmin");
+                    //create DTO instance
+                    RegistrationDTO dto = new RegistrationDTO(username,
+                            password, lastname, role);
+                    return dto;
+                }//end rs has more one record
+
+            }//end if connection is existed
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (stm != null) {
+                stm.close();
+            }
+            if (con != null) {
+                con.close();
+            }
+        }
+        return null;
+    }
+
     public boolean deleteAccount(String username)
             throws SQLException, NamingException {
         Connection con = null;
@@ -187,8 +233,9 @@ public class RegistrationDAO implements Serializable {
         }
         return false;
     }
+
     public boolean editAccount(String username,
-            String password,String lastname, boolean role)
+            String password, String lastname, boolean role)
             throws SQLException, NamingException {
         Connection con = null;
         PreparedStatement stm = null;
@@ -225,6 +272,7 @@ public class RegistrationDAO implements Serializable {
         }
         return false;
     }
+
     public boolean createAccount(RegistrationDTO dto)
             throws SQLException, NamingException {
         if (dto == null) {
