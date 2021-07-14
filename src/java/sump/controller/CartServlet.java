@@ -51,12 +51,12 @@ public class CartServlet extends HttpServlet {
                     url = CHECK_OUT_PAGE;
                 }
             }//end if btn existed
+        } finally {
             ServletContext context = request.getServletContext();
             Map<String, String> roadmap = (Map<String, String>) context.getAttribute("ROADMAP");
             if (roadmap != null) {
                 url = roadmap.get(url);
             }//end if roadmap existed
-        } finally {
             RequestDispatcher rd = request.getRequestDispatcher(url);
             rd.forward(request, response);
         }

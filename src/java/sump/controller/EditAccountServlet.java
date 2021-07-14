@@ -51,9 +51,6 @@ public class EditAccountServlet extends HttpServlet {
         RegistrationUpdateError errors = new RegistrationUpdateError();
         boolean foundErr = false;
         try {
-
-            ServletContext context = request.getServletContext();
-            Map<String, String> roadmap = (Map<String, String>) context.getAttribute("ROADMAP");
             if (btn != null) {
                 String password = request.getParameter("txtPassword");
                 String lastname = request.getParameter("txtLastname");
@@ -71,21 +68,16 @@ public class EditAccountServlet extends HttpServlet {
                     errors.setFullnameLengthErr("Fullname is required from 6 to 50 chars");
                 }
                 if (foundErr) {
-                    if (roadmap != null) {
                         request.setAttribute("EDIT_ERRORS", errors);
-                        url = roadmap.get(EDIT_PAGE)
-                                + "?role=" + role;
-                    }
+                        url = EDIT_PAGE+ "?role=" + role;
+                    
                 } else {
                     //call DAO
                     RegistrationDAO dao = new RegistrationDAO();
                     boolean result = dao.editAccount(username, password, lastname, role);
                     if (result) {
-                        if (roadmap != null) {
                             //call search again
-                            url = roadmap.get(SEARCH)
-                                    + "?txtSearchValue=" + searchValue;
-                        }//end if roadmap existed
+                            url = SEARCH+ "?txtSearchValue=" + searchValue;
                     }//end if update is successfully
                 }
             } else {
@@ -95,13 +87,24 @@ public class EditAccountServlet extends HttpServlet {
                 if (dto != null) {
                     request.setAttribute("DTO", dto);
                 }
-                url = roadmap.get(EDIT_PAGE);
+                url = EDIT_PAGE;
             }
         } catch (SQLException ex) {
             log("EditAccountServlet _ SQL " + ex.getMessage());
         } catch (NamingException ex) {
             log("EditAccountServlet _ Naming " + ex.getMessage());
         } finally {
+            ServletContext context = request.getServletContext();
+            Map<String, String> roadmap = (Map<String, String>) context.getAttribute("ROADMAP");
+            if (roadmap != null) {
+                if (url.contains("?")) {
+                    String resourse = url.substring(0, url.indexOf("?"));
+                    String parameters = url.substring(url.indexOf("?"));
+                    url = roadmap.get(resourse) + parameters;
+                } else {
+                    url = roadmap.get(url);
+                }
+            }
             RequestDispatcher rd = request.getRequestDispatcher(url);
             rd.forward(request, response);
 

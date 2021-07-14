@@ -44,12 +44,8 @@ public class ProcessRequestServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         String url = LOGIN_PAGE;
         try {
-            //get roadmap
-            ServletContext context = request.getServletContext();
-            Map<String, String> roadmap = (Map<String, String>) context.getAttribute("ROADMAP");
             //1. Get cookies from request
             Cookie[] cookies = request.getCookies();
-
             if (cookies != null) {
                 //2. Traverse all cookie to check authetication
                 for (Cookie cookie : cookies) {
@@ -69,14 +65,22 @@ public class ProcessRequestServlet extends HttpServlet {
                     }//end authetication is success checked
                 }//end of traverse cookies
             }//end cookies is existed
-            if (roadmap != null) {
-                url = roadmap.get(url);
-            }
         } catch (SQLException ex) {
             log("ProcessRequestServlet _ SQL " + ex.getMessage());
         } catch (NamingException ex) {
             log("ProcessRequestServlet _ Naming " + ex.getMessage());
         } finally {
+            ServletContext context = request.getServletContext();
+            Map<String, String> roadmap = (Map<String, String>) context.getAttribute("ROADMAP");
+            if (roadmap != null) {
+                if (url.contains("?")) {
+                    String resourse = url.substring(0, url.indexOf("?"));
+                    String parameters = url.substring(url.indexOf("?"));
+                    url = roadmap.get(resourse) + parameters;
+                } else {
+                    url = roadmap.get(url);
+                }
+            }
             RequestDispatcher rd = request.getRequestDispatcher(url);
             rd.forward(request, response);
         }

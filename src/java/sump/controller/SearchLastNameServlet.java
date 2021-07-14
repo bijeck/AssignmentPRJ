@@ -64,7 +64,13 @@ public class SearchLastNameServlet extends HttpServlet {
             ServletContext context = request.getServletContext();
             Map<String, String> roadmap = (Map<String, String>) context.getAttribute("ROADMAP");
             if (roadmap != null) {
-                url = roadmap.get(url);
+                if (url.contains("?")) {
+                    String resourse = url.substring(0, url.indexOf("?"));
+                    String parameters = url.substring(url.indexOf("?"));
+                    url = roadmap.get(resourse) + parameters;
+                } else {
+                    url = roadmap.get(url);
+                }
             }
             RequestDispatcher rd = request.getRequestDispatcher(url);
             rd.forward(request, response);

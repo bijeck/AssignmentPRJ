@@ -51,9 +51,6 @@ public class UpdateAccountServlet extends HttpServlet {
         RegistrationUpdateError errors = new RegistrationUpdateError();
         boolean foundErr = false;
         try {
-            ServletContext context = request.getServletContext();
-            Map<String, String> roadmap = (Map<String, String>) context.getAttribute("ROADMAP");
-
             if (checkAdmin != null) {
                 role = true;
             }
@@ -62,24 +59,19 @@ public class UpdateAccountServlet extends HttpServlet {
                 errors.setPasswordLengthErr("Password is required from 6 to 30 chars");
                 errors.setUsername(username);
             }
-
             if (foundErr) {
-                if (roadmap != null) {
-                    url = roadmap.get(ERROR_UPDATE_OCCUR_PAGE)
-                            + "?txtSearchValue=" + searchValue;
-                    request.setAttribute("UPDATE_ERRORS", errors);
-                }//end if roadmap existed
+                url = ERROR_UPDATE_OCCUR_PAGE
+                        + "?txtSearchValue=" + searchValue;
+                request.setAttribute("UPDATE_ERRORS", errors);
 
             } else {
                 //call DAO
                 RegistrationDAO dao = new RegistrationDAO();
                 boolean result = dao.updateAccount(username, password, role);
                 if (result) {
-                    if (roadmap != null) {
-                        //call search again
-                        url = roadmap.get(SEARCH)
-                                + "?txtSearchValue=" + searchValue;
-                    }//end if roadmap existed
+                    //call search again
+                    url = SEARCH
+                            + "?txtSearchValue=" + searchValue;
                 }//end if update is successfully
             }
         } catch (SQLException ex) {
@@ -87,6 +79,17 @@ public class UpdateAccountServlet extends HttpServlet {
         } catch (NamingException ex) {
             log("UpdateAccountServlet _ Naming " + ex.getMessage());
         } finally {
+            ServletContext context = request.getServletContext();
+            Map<String, String> roadmap = (Map<String, String>) context.getAttribute("ROADMAP");
+            if (roadmap != null) {
+                if (url.contains("?")) {
+                    String resourse = url.substring(0, url.indexOf("?"));
+                    String parameters = url.substring(url.indexOf("?"));
+                    url = roadmap.get(resourse) + parameters;
+                } else {
+                    url = roadmap.get(url);
+                }
+            }
             RequestDispatcher rd = request.getRequestDispatcher(url);
             rd.forward(request, response);
         }
