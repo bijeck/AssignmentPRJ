@@ -26,7 +26,7 @@ import sump.registration.RegistrationInsertError;
  */
 @WebServlet(name = "CreateNewAccountServlet", urlPatterns = {"/CreateNewAccountServlet"})
 public class CreateNewAccountServlet extends HttpServlet {
-    
+
     private final String LOGIN_PAGE = "loginPage";
     private final String ERROR_CREATE_PAGE = "createAccountPage";
 
@@ -42,20 +42,18 @@ public class CreateNewAccountServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        
+
         String username = request.getParameter("txtUsername");
         String password = request.getParameter("txtPassword");
         String corfirm = request.getParameter("txtConfirm");
         String fullname = request.getParameter("txtFullname");
-        
+
         RegistrationInsertError errors = new RegistrationInsertError();
         boolean foundErr = false;
         String url = ERROR_CREATE_PAGE;
-        
+
         try {
-            ServletContext context = request.getServletContext();
-            Map<String,String> roadmap = (Map<String,String>)context.getAttribute("ROADMAP");
-            
+
             //1. check all user Err
             if (username.trim().length() < 6 || username.trim().length() > 20) {
                 foundErr = true;
@@ -80,25 +78,28 @@ public class CreateNewAccountServlet extends HttpServlet {
                         = new RegistrationDTO(username, password, fullname, false);
                 RegistrationDAO dao = new RegistrationDAO();
                 boolean result = dao.createAccount(dto);
-                
+
                 if (result) {
                     //.transfer to login
                     url = LOGIN_PAGE;
                 }//end account is created
             }
-            if(roadmap!=null){
-                url = roadmap.get(url);
-            }//end if roadmap existed
+
         } catch (SQLException ex) {
             String msg = ex.getMessage();
             log("CreateNewAccountServlet _ SQL " + ex.getMessage());
-            if(msg.contains("duplicate")){
-                errors.setUsernameIsExisted(username+" existed!!!");
+            if (msg.contains("duplicate")) {
+                errors.setUsernameIsExisted(username + " existed!!!");
                 request.setAttribute("INSERT_ERRORS", errors);
             }
         } catch (NamingException ex) {
             log("CreateNewAccountServlet _ Naming " + ex.getMessage());
         } finally {
+            ServletContext context = request.getServletContext();
+            Map<String, String> roadmap = (Map<String, String>) context.getAttribute("ROADMAP");
+            if (roadmap != null) {
+                url = roadmap.get(url);
+            }//end if roadmap existed
             RequestDispatcher rd = request.getRequestDispatcher(url);
             rd.forward(request, response);
         }
